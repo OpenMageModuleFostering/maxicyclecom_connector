@@ -12,7 +12,7 @@
 <config>
     <modules>
         <Maxicycle_Connector>
-            <version>1.0.3</version>
+            <version>1.0.4</version>
         </Maxicycle_Connector>
     </modules>
     

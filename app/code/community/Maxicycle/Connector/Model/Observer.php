@@ -87,7 +87,7 @@ class Maxicycle_Connector_Model_Observer {
                 }
             } else {
                 # do nothing
-                # Mage::log('MAXICYCLE: module disabled or invalid status', null, 'maxicycle.log');                
+                Mage::log('MAXICYCLE: module disabled or invalid status', null, 'maxicycle.log');                
             }
         }
         catch(Exception $e) {
@@ -280,7 +280,7 @@ class Maxicycle_Connector_Model_Observer {
                 }
             }
         } else {
-            Mage::log('MAXICYCLE: Not adding product, campaign in response period');            
+            Mage::log('MAXICYCLE: Not adding product, campaign in response period', null, 'maxicycle.log');            
         }
     }
     
@@ -302,21 +302,31 @@ class Maxicycle_Connector_Model_Observer {
     }
     
     private function shouldExport($order) {
+        $this->hasCampaignOrderTypeSet($order);
         return $this->moduleEnabled() && $this->validStatus($order) && $this->hasCampaignOrderTypeSet($order);
     }
     
     // requires config to be set
     private function validStatus($order) {
-        return in_array($order->getStatus(), $this->_config['valid_statuses']);
+        $status = $order->getStatus();
+        Mage::log('MAXICYCLE: order status: ' . $status, null, 'maxicycle.log');
+        $valid_status = in_array($order->getStatus(), $this->_config['valid_statuses']);
+        Mage::log('MAXICYCLE: has valid status: ' . $valid_status, null, 'maxicycle.log');
+        return $valid_status;
     }
     
     // requires _config to be set
     private function moduleEnabled() {
-        return intval($this->_config['is_enable']);
+        $enabled = intval($this->_config['is_enable']);
+        Mage::log('MAXICYCLE: Module enabled true/false: ' . $enabled, null, 'maxicycle.log');
+        return $enabled;
     }
     
     // should have type set - fixes bug when exported before order_place_after_ran
     private function hasCampaignOrderTypeSet($order) {
-        return !empty($order->getMaxicycleOrderType());
-    }
+        $order_type = $order->getMaxicycleOrderType();
+        $has_type_set = isset($order_type);
+        Mage::log('MAXICYCLE: Campaign order type is set true/false: ' . $has_type_set, null, 'maxicycle.log');
+        return $has_type_set;
+    }    
 }
