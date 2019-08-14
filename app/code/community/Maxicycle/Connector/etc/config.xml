@@ -12,7 +12,7 @@
 <config>
     <modules>
         <Maxicycle_Connector>
-            <version>1.0.4</version>
+            <version>1.0.5</version>
         </Maxicycle_Connector>
     </modules>
     
@@ -80,15 +80,24 @@
             </maxicycle_read>
         </resources>
         <events>
-            <sales_order_place_after>
+             <sales_order_place_after>
                 <observers>
                     <maxicycle>
                         <type>singleton</type>
                         <class>maxicycle/observer</class>
-                        <method>sales_order_place_after</method>
+                        <method>add_product_to_order</method>
                     </maxicycle>
                 </observers>
             </sales_order_place_after>
+            <controller_action_predispatch_checkout_onepage_index>
+                <observers>
+                    <maxicycle>
+                        <type>singleton</type>
+                        <class>maxicycle/observer</class>
+                        <method>add_product_to_quote</method>
+                    </maxicycle>
+                </observers>
+            </controller_action_predispatch_checkout_onepage_index>
             <sales_order_save_after>
                 <observers>
                     <maxicycle>

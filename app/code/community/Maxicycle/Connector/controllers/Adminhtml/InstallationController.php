@@ -32,7 +32,9 @@ class Maxicycle_Connector_Adminhtml_InstallationController extends Mage_Adminhtm
             $use_shipping = intval($this->getRequest()->getPost('use_shipping'));
             $order_costs = floatval($this->getRequest()->getPost('order_costs'));
             $valid_statuses = $this->getRequest()->getPost('valid_statuses');
+            $add_during_checkout_set = $this->getRequest()->getPost('add_during_checkout');
 
+            $add_during_checkout = isset($add_during_checkout_set) ? TRUE : FALSE;
             // KEYS
             $is_enable_key = 'maxicycle/maxicycle_option/enable';
             $api_key_key = 'maxicycle/maxicycle_option/api_key';
@@ -43,6 +45,7 @@ class Maxicycle_Connector_Adminhtml_InstallationController extends Mage_Adminhtm
             $order_costs_key = 'maxicycle/maxicycle_option/order_costs';
             $product_costs_type_key = 'maxicycle/maxicycle_option/product_costs_type';
             $valid_statuses_key = 'maxicycle/maxicycle_option/valid_statuses';
+            $add_during_checkout_key = 'maxicycle/maxicycle_option/add_during_checkout';
 
             // UPDATES
             $db->query("INSERT INTO " . Mage::getSingleton('core/resource')->getTableName('core_config_data') . " (scope,scope_id,path,value) VALUES('$scope', $store_id, '$is_enable_key', '$is_enable') ON DUPLICATE KEY UPDATE value = '$is_enable'");
@@ -54,6 +57,7 @@ class Maxicycle_Connector_Adminhtml_InstallationController extends Mage_Adminhtm
             $db->query("INSERT INTO " . Mage::getSingleton('core/resource')->getTableName('core_config_data') . " (scope,scope_id,path,value) VALUES('$scope', $store_id, '$use_shipping_key', '$use_shipping') ON DUPLICATE KEY UPDATE value = '$use_shipping'");
             $db->query("INSERT INTO " . Mage::getSingleton('core/resource')->getTableName('core_config_data') . " (scope,scope_id,path,value) VALUES('$scope', $store_id, '$order_costs_key', '$order_costs') ON DUPLICATE KEY UPDATE value = '$order_costs'");
             $db->query("INSERT INTO " . Mage::getSingleton('core/resource')->getTableName('core_config_data') . " (scope,scope_id,path,value) VALUES('$scope', $store_id, '$valid_statuses_key', '" . implode(',', $valid_statuses) . "') ON DUPLICATE KEY UPDATE value = '" . implode(',', $valid_statuses) . "'");
+            $db->query("INSERT INTO " . Mage::getSingleton('core/resource')->getTableName('core_config_data') . " (scope,scope_id,path,value) VALUES('$scope', $store_id, '$add_during_checkout_key', '$add_during_checkout') ON DUPLICATE KEY UPDATE value = '$add_during_checkout'");
 
             // RESET CACHE
             $cacheType = 'config';

@@ -20,6 +20,7 @@ class Maxicycle_Connector_Helper_Data extends Mage_Core_Helper_Abstract {
         $order_costs_key = 'maxicycle/maxicycle_option/order_costs';
         $product_costs_type_key = 'maxicycle/maxicycle_option/product_costs_type';
         $valid_statuses_key = 'maxicycle/maxicycle_option/valid_statuses';
+        $add_during_checkout_key = 'maxicycle/maxicycle_option/add_during_checkout';
 
         return array(
             'is_enable' => Mage::getStoreConfig($is_enable_key, $store_id),
@@ -30,7 +31,8 @@ class Maxicycle_Connector_Helper_Data extends Mage_Core_Helper_Abstract {
             'use_tax' => Mage::getStoreConfig($use_tax_key, $store_id),
             'use_shipping' => Mage::getStoreConfig($use_shipping_key, $store_id),
             'order_costs' => Mage::getStoreConfig($order_costs_key, $store_id),
-            'valid_statuses' => explode(',', Mage::getStoreConfig($valid_statuses_key, $store_id))
+            'valid_statuses' => explode(',', Mage::getStoreConfig($valid_statuses_key, $store_id)),
+            'add_during_checkout' => Mage::getStoreConfig($add_during_checkout_key, $store_id)
         );
     }
 
