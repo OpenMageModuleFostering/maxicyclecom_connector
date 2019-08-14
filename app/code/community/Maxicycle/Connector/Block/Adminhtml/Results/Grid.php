@@ -53,6 +53,12 @@ class Maxicycle_Connector_Block_Adminhtml_Results_Grid extends Mage_Adminhtml_Bl
             'index' => 'campaign_order_type',
         ));
 
+        $this->addColumn('sku', array(
+            'header' => Mage::helper('maxicycle')->__('SKU'),
+            'align' => 'left',
+            'index' => 'sku',
+        ));
+
         $this->addColumn('response_to_order_id', array(
             'header' => Mage::helper('maxicycle')->__('Response To Order ID'),
             'align' => 'left',

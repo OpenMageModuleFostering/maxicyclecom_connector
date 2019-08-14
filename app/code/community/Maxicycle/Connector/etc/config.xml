@@ -12,7 +12,7 @@
 <config>
     <modules>
         <Maxicycle_Connector>
-            <version>1.0.7</version>
+            <version>1.1.3</version>
         </Maxicycle_Connector>
     </modules>
     
@@ -43,7 +43,7 @@
             <maxicycle>
                 <class>Maxicycle_Connector_Model</class>
                 <resourceModel>maxicycle_mysql4</resourceModel>
-            </maxicycle>
+            </maxicycle>    
             <maxicycle_mysql4>
                 <class>Maxicycle_Connector_Model_Mysql4</class>
                 <entities>
@@ -57,7 +57,7 @@
                         <table>maxicycle_results</table>
                     </results>
                 </entities>
-            </maxicycle_mysql4>
+            </maxicycle_mysql4>           
         </models>
         <resources>
             <maxicycle_setup>

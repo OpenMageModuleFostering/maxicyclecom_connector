@@ -27,17 +27,17 @@ class Maxicycle_Connector_Model_Api_Rest extends Maxicycle_Connector_Model_Api_A
 
             // Check if API key param exist between data
             if (!array_key_exists('sku', $data)) {
-                // There is no skku in reuqest
+                // There is no sku in reuqest
                 return $this->_response(array('message' => 'No SKU provided'), 403);
-            } else {
-                // Check if product with given SKU exist
-                $_product = Mage::getModel('catalog/product')->getIdBySku($data['sku']);
-                if (!$_product) {
-                    return $this->_response(array('message' => 'Product with SKU: ' . $data['sku'] . ' not exist'), 404);
-                } else {
-                    return $this->_response(array('message' => 'Product with SKU: exist'), 200);
-                }
             }
+            
+            $missing_skus = $this->checkSkus($data['sku']);
+            if (!empty($missing_skus)) {
+                return $this->_response(array('message' => 'Product with SKU: ' . join(', ', $missing_skus) . ' does not exist'), 404);
+            } else {
+                return $this->_response(array('message' => 'Product with SKU: exist'), 200);
+            }
+            
         } else {
             // Default answer for all other HTTP methods
             return $this->_response(array('message' => 'Method: ' . $this->method . ' is not supported.'), 500);
@@ -92,10 +92,9 @@ class Maxicycle_Connector_Model_Api_Rest extends Maxicycle_Connector_Model_Api_A
         if ($this->method == 'POST') {
             // Check if all params exist
             if (array_key_exists('name', $data) && array_key_exists('sku', $data) && array_key_exists('campaign_start', $data) && array_key_exists('campaign_end', $data) && array_key_exists('response_enddate', $data) && array_key_exists('treatment_group_size', $data)) {
-                // Check if product with given SKU exist
-                $_product = Mage::getModel('catalog/product')->loadByAttribute('sku', $data['sku']);
-                if (!$_product) {
-                    return $this->_response(array('message' => 'Product with SKU: ' . $data['sku'] . ' not exist'), 404);
+                $missing_skus = $this->checkSkus($data['sku']);
+                if (!empty($missing_skus)) {
+                    return $this->_response(array('message' => 'Product with SKU: ' . join(', ', $missing_skus) . ' does not exist'), 404);
                 }
 
                 // Check if store with given ID exist
@@ -137,10 +136,9 @@ class Maxicycle_Connector_Model_Api_Rest extends Maxicycle_Connector_Model_Api_A
                     return $this->_response(array('message' => 'Campaign with ID: ' . $data['campaign_id'] . ' not exist'), 404);
                 }
 
-                // Check if product with given SKU exist
-                $_product = Mage::getModel('catalog/product')->loadByAttribute('sku', $data['sku']);
-                if (!$_product) {
-                    return $this->_response(array('message' => 'Product with SKU: ' . $data['sku'] . ' not exist'), 404);
+                $missing_skus = $this->checkSkus($data['sku']);
+                if (!empty($missing_skus)) {
+                    return $this->_response(array('message' => 'Product with SKU: ' . join(', ', $missing_skus) . ' does not exist'), 404);
                 }
 
                 // Check if store with given ID exist
@@ -198,6 +196,31 @@ class Maxicycle_Connector_Model_Api_Rest extends Maxicycle_Connector_Model_Api_A
             return $this->_response(array('message' => 'Method: ' . $this->method . ' is not supported.'), 500);
         }
     }
+    
+    // Check skus if they exist in the shop
+    // sku_string 'sku1:30;sku2:40;sku3:30'        
+    private function checkSkus($sku_string) {
+        $skus = explode(';', $sku_string); 
+        // $skus == ['sku1:30', 'sku2:40', 'sku3:30'] 
+        $not_found_sku = array();
+        
+        foreach($skus as $sku_percentage) {
+            Mage::log('Checking sku percentage: ' . $sku_percentage , null, 'maxicycle.log');
+            $sku_p_ary = explode(':', $sku_percentage);
+            $sku = $sku_p_ary[0];            
+            // if not found
+            if (!$this->checkProduct($sku)) {
+              Mage::log('Sku not found: ' . $sku , null, 'maxicycle.log');
+              array_push($not_found_sku, $sku);
+            }
+        }
+        return $not_found_sku;
+    }
+    
+    private function checkProduct($sku) {
+      $_product = Mage::getModel('catalog/product')->loadByAttribute('sku', $sku);
+      return ($_product ? true : false );
+    }
 
     public function results($campaign_id, $store_id) {
         if ($this->method == 'GET') {
@@ -219,41 +242,43 @@ class Maxicycle_Connector_Model_Api_Rest extends Maxicycle_Connector_Model_Api_A
                 $results = array();
 
                 // Load all campaigns
-                $campaigns = Mage::getModel('maxicycle/results')->getCollection()->addFieldToFilter('campaign_id', $campaign_id)->addFieldToFilter('export_flag', 0);
+                $orders = Mage::getModel('maxicycle/results')->getCollection()->addFieldToFilter('campaign_id', $campaign_id)->addFieldToFilter('export_flag', 0);
                 // Loop over all campaigns
-                foreach ($campaigns as $campaign) {
+                foreach ($orders as $order) {
                     // For debug purpose
                     if ($this->_debug) {
                         // Simply return data without any check
                         $results[] = array(
-                            'campaign_id' => $campaign->getCampaignId(),
-                            'order_id' => $campaign->getOrderId(),
-                            'customer_id' => $campaign->getMaxicycleCustomerId(),
-                            'campaign_order_type' => $campaign->getCampaignOrderType(),
-                            'order_date' => $campaign->getCreatedAt(),
-                            'response_to_order_id' => $campaign->getResponseToOrderId(),
-                            'revenue' => $campaign->getGrandTotal(),
-                            'gross_profit' => $campaign->getOrderProfit(),
-                            'last_order_update' => $campaign->getLastOrderUpdateDate()
+                            'campaign_id' => $order->getCampaignId(),
+                            'order_id' => $order->getOrderId(),
+                            'customer_id' => $order->getMaxicycleCustomerId(),
+                            'campaign_order_type' => $order->getCampaignOrderType(),
+                            'order_date' => $order->getCreatedAt(),
+                            'response_to_order_id' => $order->getResponseToOrderId(),
+                            'revenue' => $order->getGrandTotal(),
+                            'gross_profit' => $order->getOrderProfit(),
+                            'last_order_update' => $order->getLastOrderUpdateDate(),
+                            'sku' => $order->getSku()
                         );
-                        $campaign->setExportFlag(1)->save();
+                        $order->setExportFlag(1)->save();
                     } else {
                         // Order status check
-                        $order_status = $this->_db->fetchOne("SELECT status FROM " . $this->_resource->getTableName("sales_flat_order_grid") . " WHERE increment_id = '" . $campaign->getOrderId() . "'");
+                        $order_status = $this->_db->fetchOne("SELECT status FROM " . $this->_resource->getTableName("sales_flat_order_grid") . " WHERE increment_id = '" . $order->getOrderId() . "'");
 
                         if (in_array($order_status, $enable_statuses)) {
                             $results[] = array(
-                                'campaign_id' => $campaign->getCampaignId(),
-                                'order_id' => $campaign->getOrderId(),
-                                'customer_id' => $campaign->getMaxicycleCustomerId(),
-                                'campaign_order_type' => $campaign->getCampaignOrderType(),
-                                'order_date' => $campaign->getCreatedAt(),
-                                'response_to_order_id' => $campaign->getResponseToOrderId(),
-                                'revenue' => $campaign->getGrandTotal(),
-                                'gross_profit' => $campaign->getOrderProfit(),
-                                'last_order_update' => $campaign->getLastOrderUpdateDate()
+                                'campaign_id' => $order->getCampaignId(),
+                                'order_id' => $order->getOrderId(),
+                                'customer_id' => $order->getMaxicycleCustomerId(),
+                                'campaign_order_type' => $order->getCampaignOrderType(),
+                                'order_date' => $order->getCreatedAt(),
+                                'response_to_order_id' => $order->getResponseToOrderId(),
+                                'revenue' => $order->getGrandTotal(),
+                                'gross_profit' => $order->getOrderProfit(),
+                                'last_order_update' => $order->getLastOrderUpdateDate(),
+                                'sku' => $order->getSku()
                             );
-                            $campaign->setExportFlag(1)->save();
+                            $order->setExportFlag(1)->save();
                         }
                     }
                 }
@@ -378,6 +403,7 @@ class Maxicycle_Connector_Model_Api_Rest extends Maxicycle_Connector_Model_Api_A
                             'order_profit' => $gross_profit,
                             'last_order_update_date' => $order->getUpdatedAt(),
                             'campaign_order_type' => $order->getMaxicycleOrderType(),
+                            'sku' => $campaign->getSku(),
                             'export_flag' => 0
                         );
 
