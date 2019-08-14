@@ -71,21 +71,6 @@ class Maxicycle_Connector_Block_Adminhtml_Campaigns_Grid extends Mage_Adminhtml_
             'options' => $stores,
         ));
 
-        $this->addColumn('action', array(
-            'header' => Mage::helper('maxicycle')->__('Action'),
-            'width' => '200',
-            'type' => 'action',
-            'getter' => 'getCampaignId',
-            'actions' => array(
-                array(
-                    'caption' => Mage::helper('maxicycle')->__('Regenerate results'),
-                    'url'     => array('base' => '*/*/regenerate'),
-                    'field'   => 'campaign_id',
-                    'onclick' => "if(!confirm('Do you realy want to re-generate results?')) return false;"
-                )
-            )
-        ));
-
         return parent::_prepareColumns();
     }
 

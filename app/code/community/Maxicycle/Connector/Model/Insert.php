@@ -66,7 +66,8 @@ class Maxicycle_Connector_Model_Insert extends Mage_Core_Model_Abstract {
                 $this->_setCustomerIdToOrder();
                 // Process condition - ADD PRODUCT - only if campaign is still in CP and not already in RT
                 if (!$this->_inResponsePeriod($campaign)) { 
-                    $this->_addProduct();                    
+                    $this->_addProduct();      
+                    $this->_quote_or_order->save();
                 } else {
                   Mage::log('Not adding product, campaign in response period', null, 'maxicycle.log');              
                 }
@@ -185,7 +186,7 @@ class Maxicycle_Connector_Model_Insert extends Mage_Core_Model_Abstract {
                         ->setBaseRowTotal($rowTotal)
                         ->setOrder($order);
                 $order_item->save();     
-                Mage::log('Product successfully added to quote', null, 'maxicycle.log');
+                Mage::log('Product successfully added to order', null, 'maxicycle.log');
             } catch (Exception $e) {
                 Mage::log('Adding product to order failed: ' .$e->getMessage(), null, 'maxicycle.log');
                 throw $e;
@@ -359,9 +360,9 @@ class Maxicycle_Connector_Model_Insert extends Mage_Core_Model_Abstract {
         return (rand(0, 100) <= $treatment_group_size ? true : false);
     }
     
-    // Check if we insert for Order or Quote
+        // Check if we insert for Order or Quote
     private function _isOrder() {
-        return get_class($this->_quote_or_order) == 'Mage_Sales_Model_Order';
+        return ($this->_quote_or_order instanceof Mage_Sales_Model_Order); 
     }
-    
+        
 }

@@ -199,33 +199,34 @@ class Maxicycle_Connector_Model_Observer{
         $avg_order_costs = floatval($this->_config['order_costs']);
         $grand_total = $order->getGrandTotal();            
         $item_costs = 0.00;
-
+        Mage::log('EXPORT: PRODUCT cost attribute: ' . $product_costs_attribute, null, 'maxicycle.log');   
+            
         // Loop over all order items
         foreach ($order_items as $item) {
             $item_price = floatval($item->getBasePrice());
             $item_quantity = floatval($item->getQtyOrdered());
             // Load product
-            $product = Mage::getModel('catalog/product')->load($item->getProductId());
+            $product = Mage::getModel('catalog/product')->loadByAttribute('sku', $item->getSku());
 
             // get product price from attribute
-            if ($product_costs_type == '1') {
+            if ($product_costs_type == '1' || $product_costs_type == '3') {
                 // get product price from specified attribute
                 $bp = floatval($product->getData($product_costs_attribute));                    
-//                Mage::log('EXPORT: Gross profit: attribute', null, 'maxicycle.log');                
                 if ($bp != 0) {
-//                    Mage::log('EXPORT: Gross profit: attribute value: ' . $bp, null, 'maxicycle.log');
+                    Mage::log('EXPORT: Gross profit: attribute value: ' . $bp, null, 'maxicycle.log');
                     $item_costs += ($item_quantity * $bp);
                 } else {
-//                    Mage::log('EXPORT: Gross profit: attribute value empty ' . $bp, null, 'maxicycle.log');
+                    Mage::log('EXPORT: Gross profit: attribute value empty ' . $bp, null, 'maxicycle.log');
                     $item_costs += ($item_quantity * $item_price);
                 }
+                Mage::log('EXPORT: Gross profit: item costs ' . $item_costs, null, 'maxicycle.log');
             } else {
-//                Mage::log('EXPORT: Gross profit: fixed product price - percentage', null, 'maxicycle.log');
+                Mage::log('EXPORT: Gross profit: fixed product price - percentage', null, 'maxicycle.log');
                 if (floatval($product_costs_fixed) != 0) {
                     // deduct percentage
                     $fixed_percentage = floatval($product_costs_fixed) / 100.00;
                     $item_costs += ($item_quantity * $item_price * $fixed_percentage);
-//                    Mage::log('EXPORT: Gross profit: item costs ' . $item_costs, null, 'maxicycle.log');
+                    Mage::log('EXPORT: Gross profit: item costs ' . $item_costs, null, 'maxicycle.log');
                 } else {
                     $item_costs += ($item_quantity * $item_price);
                 }
@@ -234,7 +235,7 @@ class Maxicycle_Connector_Model_Observer{
 
         // deduct specified average order costs
         $gross_profit = ($grand_total - floatval($avg_order_costs));
-        //Mage::log('EXPORT: Gross profit: Grand total - avg order costs' . $gross_profit, null, 'maxicycle.log');
+        Mage::log('EXPORT: Gross profit: Grand total - avg order costs: ' . $gross_profit, null, 'maxicycle.log');
         // deduct tax 
         if ($use_tax) {
             Mage::log('EXPORT: Gross profit, deducting tax', null, 'maxicycle.log');

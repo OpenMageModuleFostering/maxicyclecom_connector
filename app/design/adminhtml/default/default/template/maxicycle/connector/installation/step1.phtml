@@ -210,11 +210,12 @@
                             </td>
                             <td class="value">
                                 <select name="product_costs_type" class="select" onchange="return showProductCostsAttribute(this);" id="product_cost_type">
-                                    <option value="1"<?php echo ((intval($config['product_costs_type']) == 1) ? ' selected="selected"' : ''); ?>><?php echo $this->__('Attribute'); ?></option>
+                                    <option value="1"<?php echo ((intval($config['product_costs_type']) == 1) ? ' selected="selected"' : ''); ?>><?php echo $this->__('Attribute - select from list'); ?></option>
+                                    <option value="3"<?php echo ((intval($config['product_costs_type']) == 3) ? ' selected="selected"' : ''); ?>><?php echo $this->__('Attribute - enter manually'); ?></option>
                                     <option value="2"<?php echo ((intval($config['product_costs_type']) == 2) ? ' selected="selected"' : ''); ?>><?php echo $this->__('Fixed value'); ?></option>
                                 </select>
                                 <p class="note">
-                                    <span><?php echo $this->__('Select "Attribute" if you have stored the buying price of your products in a product attribute. If not, please select "Fixed value" and enter your average costs of goods sold (in percent).'); ?></span>
+                                    <span><?php echo $this->__('Select "Attribute" if you have stored the buying price of your products in a product attribute. If not, please select "Fixed value" and enter your average costs of goods sold (in percent of your sales without VAT).'); ?></span>
                                 </p>
                             </td>
                         </tr>
@@ -226,12 +227,9 @@
                                     <span><?php echo $this->__('Average costs of goods sold in percent of your product selling price without taxes. (Ask your controller!)'); ?></span>
                                 </p>
                             </td>
-                        </tr>
-                        <tr>
-                            <td></td>
                             <td class="value"<?php echo (($config['product_costs_type'] == '1') ? '' : ' style="display:none;"'); ?> id="product_costs_attribute">
                                 <?php $attributes = Mage::getResourceModel('catalog/product_attribute_collection')->getItems(); ?>
-                                <select name="product_costs_attribute" class="select">
+                                <select name="product_costs_attribute" class="select" id="product_costs_attribute_select">
                                     <?php foreach ($attributes as $attribute): ?>
                                         <?php if ($attribute->getFrontendLabel() == '' || $attribute->getBackendType() != 'decimal') continue; ?>
                                     <?php $attribute_selected = ($config['product_costs_attribute'] == '' ? 'cost' : $config['product_costs_attribute']) ?>
@@ -240,6 +238,16 @@
                                 </select>
                                 <p class="note">
                                     <span><?php echo $this->__('This product attribute contains your product buying price.'); ?></span>
+                                </p>
+                            </td>
+                            <!-- Custom attribute code -->
+                            <td class="value"<?php echo (($config['product_costs_type'] == '3') ? '' : ' style="display:none;"'); ?> id="product_costs_attribute_custom">
+                                <div id="product_attribute_text_field">
+                                    <input type="text" class="input-text" name="product_costs_attribute" value="<?php echo ($config['product_costs_type'] == '3') ? $config['product_costs_attribute'] : '' ?>" placeholder="Attribute code" id="product_costs_attribute_custom_input"/>
+                                </div>
+                                
+                                <p class="note">
+                                    <span><?php echo $this->__('This product attribute contains your product buying price. You can find the attribute code in Catalog > Attributes > Manage Attributes > ... > Properties > Attribute code. Attribute values must be formatted as "1234.56"'); ?></span>
                                 </p>
                             </td>
                         </tr>
@@ -280,14 +288,29 @@
 <script type="text/javascript">
     //< ![CDATA[
     function showProductCostsAttribute(e) {
-        if ($(e).value == '1') {
-            $('product_costs_fixed').hide();
-            $('product_costs_attribute').show();
-        } else {
-            $('product_costs_fixed').show();
-            $('product_costs_attribute').hide();
+        switch($(e).value) {
+            case '1':
+                $('product_costs_fixed').hide();
+                $('product_costs_attribute_custom').hide();   
+                $('product_costs_attribute_custom_input').disabled = true;
+                $('product_costs_attribute_select').disabled = false;
+                $('product_costs_attribute').show();
+                break;
+            case '2':
+                $('product_costs_fixed').show();
+                $('product_costs_attribute_custom').hide();                
+                $('product_costs_attribute').hide();
+                break;
+            case '3':
+                $('product_costs_fixed').hide();
+                $('product_costs_attribute_custom').show();
+                $('product_costs_attribute_select').disabled = true;
+                $('product_costs_attribute_custom_input').disabled = false;
+                $('product_costs_attribute').hide();
+                break;
         }
     }
+    
     function switchStore(obj) {
         var storeParam = obj.value ? 'store/' + obj.value + '/' : '';
         if (obj.switchParams) {
@@ -308,12 +331,10 @@
     
     
     document.edit_form.onsubmit = function(){
-        alert('handled');
         validateForm();
-    }
+    };
     
     function submitIfValid() {
-        console.log('validateForm');
         var e = document.getElementById("valid-status");
         if (!e.options[e.selectedIndex]) {
             alert("Select at least one order status.");
