@@ -181,10 +181,10 @@
                             <td class="value">
                                 <input type="checkbox" value="1" name="add_during_checkout" <?php echo (intval($config['add_during_checkout']) == 1 ? ' checked' : ''); ?>>                                    
                                 <p class="note">
-                                    <span><?php echo $this->__('Check this box e.g. if you use Klarna invoice.'); ?></span>
+                                    <span><?php echo $this->__('Check this box if you need to add the sku before placing the order (e.g. Klarna). Magento\'s default onepage Checkout is required.'); ?></span>
                                 </p>    
                             </td>
-                        </tr>
+                        </tr>                                                
                     </table>
                 </div>
             </div>

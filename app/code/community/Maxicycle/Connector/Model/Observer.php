@@ -28,13 +28,35 @@ class Maxicycle_Connector_Model_Observer{
     private function getActiveCampaigns() {
         return $this->_db->fetchAll("SELECT * FROM " . $this->_dbResource->getTableName('maxicycle/campaigns') . " WHERE campaign_start <= '$this->_now' AND response_time_end >= '$this->_now' AND store_id = " . Mage::app()->getStore()->getId());
     }
-        
-    // will add product to quote table to have product ready for payment methods
-    // like Klarna which sends the cart items before the actual order creation
-    public function add_product_to_quote($observer) {
+    
+    // manually triggered event for quote
+    public function maxicycle_add_product_to_quote_hook($observer) {
+        Mage::log('Event hook maxicycle_add_product_to_quote', null, 'maxicycle.log');
+        try {
+            $quote = $observer->getQuote();
+            $this->add_product_to_quote($quote);
+        }
+        catch(Exception $e) {
+          Mage::log('QUOTE: maxicycle_add_product_to_quote hook failed: ' .$e->getMessage(), null, 'maxicycle.log');
+        }  
+    }
+    
+    // triggered by event observer
+    public function one_page_checkout_hook($observer) {
         Mage::log('controller_action_predispatch_checkout_onepage_index', null, 'maxicycle.log');
         try {
             $quote = $this->getQuote();
+            $this->add_product_to_quote($quote);
+        }
+        catch(Exception $e) {
+          Mage::log('QUOTE: one_page_checkout hook failed: ' .$e->getMessage(), null, 'maxicycle.log');
+        }   
+    }
+        
+    // will add product to quote table to have product ready for payment methods
+    // like Klarna which sends the cart items before the actual order creation
+    public function add_product_to_quote($quote) {
+        try {
             $this->setConfig($quote->getStoreId());
             if ($this->moduleEnabled() && $this->checkoutEnabled() && !$this->hasCampaignOrderTypeSet($quote)) {
                 Mage::log('QUOTE: adding product to order', null, 'maxicycle.log');
