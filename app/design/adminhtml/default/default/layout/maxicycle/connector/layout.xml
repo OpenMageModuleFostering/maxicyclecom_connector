@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * @category    Maxicycle
+ * @package     Maxicycle_Connector
+ * @copyright   Copyright (c) 2015 (http://www.maxicycle.com)
+ * @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ */
+-->
+<layout>
+    <default>
+        <reference name="head">
+            <action method="addItem">
+                <type>skin_css</type>
+                <file>maxicycle/connector/css/css.css</file>
+            </action>
+        </reference>
+    </default>
+</layout>

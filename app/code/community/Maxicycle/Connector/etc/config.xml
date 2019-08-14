@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+/**
+ * Maxicycle
+ *
+ * @category    Maxicycle
+ * @package     Maxicycle_Connector
+ * @copyright   Copyright (c) 2015 (http://www.maxicycle.com)
+ */
+-->
+
+<config>
+    <modules>
+        <Maxicycle_Connector>
+            <version>1.0.3</version>
+        </Maxicycle_Connector>
+    </modules>
+    
+    <frontend>
+        <routers>
+            <maxicycle>
+                <use>standard</use>
+                <args>
+                    <module>Maxicycle_Connector</module>
+                    <frontName>maxicycle_api</frontName>
+                </args>
+            </maxicycle>                        
+        </routers>
+    </frontend>
+        
+    <global>
+        <helpers>
+            <maxicycle>
+                <class>Maxicycle_Connector_Helper</class>
+            </maxicycle>
+        </helpers>
+        <blocks>
+            <maxicycle>
+                <class>Maxicycle_Connector_Block</class>
+            </maxicycle>
+        </blocks>
+        <models>
+            <maxicycle>
+                <class>Maxicycle_Connector_Model</class>
+                <resourceModel>maxicycle_mysql4</resourceModel>
+            </maxicycle>
+            <maxicycle_mysql4>
+                <class>Maxicycle_Connector_Model_Mysql4</class>
+                <entities>
+                    <campaigns>
+                        <table>maxicycle_campaigns</table>
+                    </campaigns>
+                    <cronlog>
+                        <table>maxicycle_cronlog</table>
+                    </cronlog>
+                    <results>
+                        <table>maxicycle_results</table>
+                    </results>
+                </entities>
+            </maxicycle_mysql4>
+        </models>
+        <resources>
+            <maxicycle_setup>
+                <setup>
+                    <module>Maxicycle_Connector</module>
+                </setup>
+                <connection>
+                    <use>core_setup</use>
+                </connection>
+            </maxicycle_setup>
+            <maxicycle_write>
+                <connection>
+                    <use>core_write</use>
+                </connection>
+            </maxicycle_write>
+            <maxicycle_read>
+                <connection>
+                    <use>core_read</use>
+                </connection>
+            </maxicycle_read>
+        </resources>
+        <events>
+            <sales_order_place_after>
+                <observers>
+                    <maxicycle>
+                        <type>singleton</type>
+                        <class>maxicycle/observer</class>
+                        <method>sales_order_place_after</method>
+                    </maxicycle>
+                </observers>
+            </sales_order_place_after>
+            <sales_order_save_after>
+                <observers>
+                    <maxicycle>
+                        <type>singleton</type>
+                        <class>maxicycle/observer</class>
+                        <method>sales_order_save_after</method>
+                    </maxicycle>
+                </observers>
+            </sales_order_save_after>            
+        </events>
+    </global>      
+        
+    <admin>
+        <routers>
+            <maxicycle>
+                <use>admin</use>
+                <args>
+                    <module>Maxicycle_Connector</module>
+                    <frontName>maxicycle</frontName>
+                </args>
+            </maxicycle>
+        </routers>
+    </admin>
+    
+    <adminhtml>
+        <layout>
+            <updates>
+                <maxicycle>
+                    <file>maxicycle/connector/layout.xml</file>
+                </maxicycle>
+            </updates>
+        </layout>
+    </adminhtml>
+</config> 

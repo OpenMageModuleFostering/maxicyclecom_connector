@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Maxicycle
+ *
+ * @category    Maxicycle
+ * @package     Maxicycle_Connector
+ * @copyright   Copyright (c) 2015 (http://www.maxicycle.com)
+ */
+-->
+<config>
+    <modules>
+        <Maxicycle_Connector>
+            <active>true</active>
+            <codePool>community</codePool>
+        </Maxicycle_Connector>
+    </modules>
+</config>

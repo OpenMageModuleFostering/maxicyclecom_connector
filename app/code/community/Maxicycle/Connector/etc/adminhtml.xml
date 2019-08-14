@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+/**
+ * Maxicycle
+ *
+ * @category    Maxicycle
+ * @package     Maxicycle_Connector
+ * @copyright   Copyright (c) 2015 (http://www.maxicycle.com)
+ */
+-->
+<config>    
+    <menu>
+        <promo>
+            <children>
+                <maxicycle translate="title" module="maxicycle">
+                    <title>Maxicycle</title>
+                    <sort_order>100</sort_order>
+                    <children>
+                        <installation translate="title" module="maxicycle">
+                            <title>Module configuration</title>
+                            <action>maxicycle/adminhtml_installation/index</action>
+                        </installation>
+                        <campaigns translate="title" module="maxicycle">
+                            <title>Campaigns</title>
+                            <action>maxicycle/adminhtml_campaigns/index</action>
+                        </campaigns>
+<!--                        <crondata translate="title" module="maxicycle">
+                            <title>Cron Log</title>
+                            <action>maxicycle/adminhtml_cronlog/index</action>
+                        </crondata>-->
+                        <results translate="title" module="maxicycle">
+                            <title>Results</title>
+                            <action>maxicycle/adminhtml_results/index</action>
+                        </results>
+                    </children>
+                </maxicycle>
+            </children>
+        </promo>
+    </menu>
+    <acl>
+        <resources>
+            <all>
+                <title>Allow Everything</title>
+            </all>
+            <admin>
+                <children>
+                    <system>
+                        <children>
+                            <config>
+                                <children>
+                                    <maxicycle>
+                                        <title>Maxicycle</title>
+                                    </maxicycle>
+                                </children>
+                            </config>
+                        </children>
+                    </system>
+                    <Maxicycle_Connector>
+                        <title>Maxicycle_Connector</title>
+                        <sort_order>10</sort_order>
+                    </Maxicycle_Connector>
+                </children>
+            </admin>
+        </resources>
+    </acl>
+</config>

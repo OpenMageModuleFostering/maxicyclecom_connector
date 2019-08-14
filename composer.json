@@ -1,0 +1,16 @@
+{
+    "name": "OpenMageModuleFostering/MaxicycleCom_Connector",
+    "type": "magento-module",
+    "license": "Copyright-Maxicycle-Software-GmbH-2015",
+    "homepage": "",
+    "description": "Boost your package for retention.",
+    "authors": [
+    {
+        "name": "Maxicycle Software GmbH",
+        "email": "support@maxicycle.com"
+    }
+],
+    "suggest": {
+        "magento-hackathon/magento-composer-installer": "*"
+    }
+}

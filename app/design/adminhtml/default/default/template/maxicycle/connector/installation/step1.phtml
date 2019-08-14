@@ -1,0 +1,315 @@
+<?php $store_id = (int) $this->getRequest()->getParam('store'); ?>
+<?php if ($store_id == 0): ?>
+    <?php foreach (Mage::app()->getStores() as $store): ?>
+        <?php $store_id = $store->getId(); ?>
+        <?php break; ?>
+    <?php endforeach; ?>
+<?php endif; ?>
+<?php $config = Mage::helper('maxicycle')->getConfiguration($store_id); ?>
+<form id="edit_form" name="edit_form" method="post" action="<?php echo $this->getUrl('*/*/update') ?>"">
+    <input type="hidden" name="form_key" value="<?php echo $this->getFormKey(); ?>" />
+    <input type="hidden" name="store_id" value="<?php echo $store_id; ?>" />
+
+    <div class="content-header">
+        <table cellspacing="0">
+            <tbody>
+                <tr>
+                    <td>
+                        <h3>
+                            <?php echo $this->__('Maxicycle module configuration'); ?>
+                        </h3>
+                    </td>
+                    <td align="right">
+                        <button style="" onclick="submitIfValid();" class="scalable save save_and_update_marketplaces" type="button" title="<?php echo $this->__('Save And Update'); ?>">
+                            <span>
+                                <span>
+                                    <span>
+                                        <?php echo $this->__('Save And Update'); ?>
+                                    </span>
+                                </span>
+                            </span>
+                        </button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div title="" class="is_prepared block_notices" id="block_notice_marketplaces_choose" subtitle="" collapseable="" hideblock="" always_show="">
+        <div class="block_notices_header">
+            <div class="block_notices_header_left">
+                <p>
+                    <?php echo $this->__('Not sure how to get Maxicycle up and running? Check out <a href="http://www.maxicycle.com/help" target="blank">http://www.maxicycle.com/help</a>'); ?>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div id="messages">
+        <ul class="messages">
+            <li class="warning" style="background-color:#e6e6e6;border:1px solid #666e73;">
+                <ul>
+                    <li>
+                        <?php if (count(Mage::app()->getStores()) > 1): ?>
+                            <span><?php echo $this->__('Whow, you have multiple stores! Please enter these API URLs into your <a href="http://my.maxicycle.com" target="blank">my.maxicycle.com</a> account shop configuration'); ?></span>
+                            <br />
+                            <br />
+                            <table>
+                                <tr>
+                                    <td style="padding-left:10px;">
+                                        <table border="1" cellpadding="0" cellspacing="0">
+                                            <tr>
+                                                <td style="padding:5px;font-weight:bold;"><strong><?php echo $this->__('ID'); ?></strong></td>
+                                                <td style="padding:5px;font-weight:bold;"><strong><?php echo $this->__('Store Name'); ?></strong></td>
+                                                <td style="padding:5px;font-weight:bold;"><strong><?php echo $this->__('API URL'); ?></strong></td>
+                                            </tr>
+                                            <?php foreach (Mage::app()->getStores() as $store): ?>
+                                                <tr>
+                                                    <td style="padding:5px;"><?php echo $store->getId(); ?></td>
+                                                    <td style="padding:5px;"><?php echo $store->getName(); ?></td>
+                                                    <td style="padding:5px;"><?php echo $store->getBaseUrl() . 'maxicycle_api'; ?></td>
+                                                </tr>
+                                            <?php endforeach; ?>
+                                        </table>
+                                    </td>
+                                </tr>
+                            </table>
+                        <?php else: ?>
+                            <span>
+                                <?php echo $this->__('Please enter the API URL into your <a href="http://my.maxicycle.com">my.maxicycle.com</a> account: '); ?>
+                                <?php foreach (Mage::app()->getStores() as $store): ?>
+                                    <strong><?php echo $store->getBaseUrl() . 'maxicycle_api'; ?></strong>
+                                <?php endforeach; ?>
+                            </span>
+                        <?php endif; ?>                        
+                    </li>
+                </ul>
+            </li>
+        </ul>
+    </div>
+
+    <?php if ($websites = Mage::app()->getWebsites()): ?>
+        <p class="switcher"><label for="store_switcher"><?php echo $this->__('Choose Store View:') ?></label>
+            <input type="hidden" name="current_store" value="<?php echo $store_id; ?>" id="current_store" />
+            <select name="store_switcher" id="store_switcher" onchange="return switchStore(this);" onclick="$('current_store').value = this.value;">
+                <?php if ($this->hasDefaultOption()): ?>
+                    <option value=""><?php echo $this->getDefaultStoreName() ?></option>
+                <?php endif; ?>
+                <?php foreach ($websites as $website): ?>
+                    <?php $showWebsite = false; ?>
+                    <?php foreach ($website->getGroups() as $group): ?>
+                        <?php $showGroup = false; ?>
+                        <?php foreach ($group->getStores() as $store): ?>
+                            <?php if ($store->getId() == 0) continue; ?>
+                            <?php if ($showWebsite == false): ?>
+                                <?php $showWebsite = true; ?>
+                                <optgroup label="<?php echo $this->escapeHtml($website->getName()) ?>"></optgroup>
+                            <?php endif; ?>
+                            <?php if ($showGroup == false): ?>
+                                <?php $showGroup = true; ?>
+                                <optgroup label="&nbsp;&nbsp;&nbsp;<?php echo $this->escapeHtml($group->getName()) ?>">
+                                <?php endif; ?>
+                                <option value="<?php echo $this->escapeHtml($store->getId()) ?>"<?php if ($store_id == $store->getId()): ?> selected="selected"<?php endif; ?>>&nbsp;&nbsp;&nbsp;&nbsp;<?php echo $this->escapeHtml($store->getName()) ?></option>
+                            <?php endforeach; ?>
+                            <?php if ($showGroup): ?>
+                            </optgroup>
+                        <?php endif; ?>
+                    <?php endforeach; ?>
+                <?php endforeach; ?>
+            </select>
+        </p>
+    <?php endif; ?>
+
+    <div>
+        <div id="magento_block_amazon_marketplaces_group_1" class="entry-edit magento_block_amazon_marketplaces_group_1_hide magento_block_amazon_marketplaces_group_1_hide_tips">
+            <div class="entry-edit-head">
+                <div>
+                    <h4><?php echo $this->__('Basic settings'); ?></h4>
+                </div>
+            </div>
+            <div class="fieldset" style="margin-bottom: 15px;">
+                <div class="hor-scroll">
+                    <table cellspacing="0" cellpadding="0" class="form-list">
+                        <tr>
+                            <td class="label">
+                                <?php echo $this->__('Enable module'); ?>:
+                            </td>
+                            <td class="value">
+                                <select name="is_enable" class="select">
+                                    <option value="1"<?php echo ((intval($config['is_enable']) == 1) ? ' selected="selected"' : ''); ?>><?php echo $this->__('Yes'); ?></option>
+                                    <option value="0"<?php echo ((intval($config['is_enable']) == 0) ? ' selected="selected"' : ''); ?>><?php echo $this->__('No'); ?></option>
+                                </select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="label">
+                                <?php echo $this->__('API Key'); ?>:
+                            </td>
+                            <td class="value">
+                                <input type="text" name="api_key" class="input-text" value="<?php echo $config['api_key']; ?>" />
+                                <p class="note">
+                                    <span><?php echo $this->__('You can find in your Shops overview on Maxicycle.com'); ?></span>
+                                </p>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="label">
+                                <?php echo $this->__('Valid order statuses for Maxicycle'); ?>:
+                            </td>
+                            <td class="value">
+                                <?php $orderStatusCollection = Mage::getModel('sales/order_status')->getResourceCollection()->getData(); ?>
+                                <select name="valid_statuses[]" class="select multiselect" multiple="true" size="6" id="valid-status">
+                                     <?php if (!$config['valid_statuses'][0]): ?>
+                                       <?php foreach ($orderStatusCollection as $orderStatus): ?>
+                                          <option<?php echo ($orderStatus['status'] == 'complete' ? ' selected="selected"' : ''); ?> value="<?php echo $orderStatus['status']; ?>"><?php echo $orderStatus['label']; ?></option>
+                                        <?php endforeach; ?>
+                                     <?php else: ?>
+                                       <?php foreach ($orderStatusCollection as $orderStatus): ?>
+                                          <option<?php echo ((in_array($orderStatus['status'], $config['valid_statuses'])) ? ' selected="selected"' : ''); ?> value="<?php echo $orderStatus['status']; ?>"><?php echo $orderStatus['label']; ?></option>
+                                        <?php endforeach; ?>
+                                     <?php endif; ?>                                    
+                                </select>
+                                <p class="note">
+                                    <span><?php echo $this->__('Once an order has reached this status, we use it for analyses. This should be the status which you use to mark a shipped parcel.'); ?></span>
+                                </p>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div id="magento_block_amazon_marketplaces_group_2" class="entry-edit magento_block_amazon_marketplaces_group_1_hide magento_block_amazon_marketplaces_group_1_hide_tips">
+            <div class="entry-edit-head">
+                <div>
+                    <h4><?php echo $this->__('Gross profit calculation'); ?></h4>
+                </div>
+            </div>
+            <div class="fieldset" style="margin-bottom: 15px;">
+                <div class="hor-scroll">
+                    <table cellspacing="0" cellpadding="0" class="form-list">
+                        <tr>
+                            <td colspan="2">
+                                <strong><?php echo $this->__('You do want to find out how profitable your package insert campaigns are, right? Ok, so let us know how we should calculate your gross profit per order. You need more information? Check out <a href="http://www.maxicycle.com/help">http://www.maxicycle.com/help</a>'); ?></strong>
+                            </td>
+                        </tr>
+                        <tr><td>&nbsp;</td></tr>
+                        <tr>
+                            <td class="label">
+                                <?php echo $this->__('Take product buying price from'); ?>:
+                            </td>
+                            <td class="value">
+                                <select name="product_costs_type" class="select" onchange="return showProductCostsAttribute(this);" id="product_cost_type">
+                                    <option value="1"<?php echo ((intval($config['product_costs_type']) == 1) ? ' selected="selected"' : ''); ?>><?php echo $this->__('Attribute'); ?></option>
+                                    <option value="2"<?php echo ((intval($config['product_costs_type']) == 2) ? ' selected="selected"' : ''); ?>><?php echo $this->__('Fixed value'); ?></option>
+                                </select>
+                                <p class="note">
+                                    <span><?php echo $this->__('Select "Attribute" if you have stored the buying price of your products in a product attribute. If not, please select "Fixed value" and enter your average costs of goods sold (in percent).'); ?></span>
+                                </p>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td></td>
+                            <td class="value"<?php echo (($config['product_costs_type'] == '2') ? '' : ' style="display:none;"'); ?> id="product_costs_fixed">
+                                <input type="text" class="input-text validate-digits-range digits-range-0-99" name="product_costs_fixed" value="<?php echo $config['product_costs_fixed']; ?>" /> %
+                                <p class="note">
+                                    <span><?php echo $this->__('Average costs of goods sold in percent of your product selling price without taxes. (Ask your controller!)'); ?></span>
+                                </p>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td></td>
+                            <td class="value"<?php echo (($config['product_costs_type'] == '1') ? '' : ' style="display:none;"'); ?> id="product_costs_attribute">
+                                <?php $attributes = Mage::getResourceModel('catalog/product_attribute_collection')->getItems(); ?>
+                                <select name="product_costs_attribute" class="select">
+                                    <?php foreach ($attributes as $attribute): ?>
+                                        <?php if ($attribute->getFrontendLabel() == '' || $attribute->getBackendType() != 'decimal') continue; ?>
+                                    <?php $attribute_selected = ($config['product_costs_attribute'] == '' ? 'cost' : $config['product_costs_attribute']) ?>
+                                        <option value="<?php echo $attribute->getAttributecode(); ?>"<?php echo (($attribute_selected == $attribute->getAttributecode()) ? ' selected="selected"' : ''); ?>><?php echo $attribute->getFrontendLabel(); ?></option>
+                                    <?php endforeach; ?>
+                                </select>
+                                <p class="note">
+                                    <span><?php echo $this->__('This product attribute contains your product buying price.'); ?></span>
+                                </p>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="label">
+                                <?php echo $this->__('Deduct VAT from selling price'); ?>:
+                            </td>
+                            <td class="value">
+                                <select name="use_tax" class="select">
+                                    <?php $deduct_vat = ($config['use_tax'] == '' ? 1 : $config['use_tax']) ?>
+                                    <option value="1"<?php echo (($deduct_vat == 1) ? ' selected="selected"' : ''); ?>><?php echo $this->__('Yes'); ?></option>
+                                    <option value="0"<?php echo ((intval($deduct_vat) == 0) ? ' selected="selected"' : ''); ?>><?php echo $this->__('No'); ?></option>
+                                </select>
+                                <p class="note">
+                                    <span><?php echo $this->__('Select "Yes" if you use the standard Magento functionality to calculate your VAT. If you select "No", Maxicycle does not deduct taxes from your selling price to calculate gross profit.'); ?></span>
+                                </p>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="label">
+                                <?php echo $this->__('Average order costs'); ?>:
+                            </td>
+                            <td class="value">
+                                <?php $order_cost = ($config['order_costs'] == '' ? 0 : $config['order_costs']) ?>
+                                <input type="text" name="order_costs" class="input-text" value="<?php echo $order_cost; ?>" /> &euro;
+                                <p class="note">
+                                    <span><?php echo $this->__('Additional order costs to COGS and taxes (e.g. fulfilment, postage, customer care) – enter your average per order in €.'); ?></span>
+                                </p>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+<script type="text/javascript">
+    //< ![CDATA[
+    function showProductCostsAttribute(e) {
+        if ($(e).value == '1') {
+            $('product_costs_fixed').hide();
+            $('product_costs_attribute').show();
+        } else {
+            $('product_costs_fixed').show();
+            $('product_costs_attribute').hide();
+        }
+    }
+    function switchStore(obj) {
+        var storeParam = obj.value ? 'store/' + obj.value + '/' : '';
+        if (obj.switchParams) {
+            storeParam += obj.switchParams;
+        }
+        if (confirm("<?php echo $this->__('Please confirm site switching. All data that hasn\'t been saved will be lost.') ?>")) {
+            setLocation('<?php echo $this->getSwitchUrl() ?>' + storeParam);
+            return true;
+        } else {
+            obj.value = $('current_store').value;
+            return false;
+        }
+        return false;
+    }
+    // init showProductCostsAttribute
+    var $el = document.getElementById('product_cost_type');
+    showProductCostsAttribute($el);
+    
+    
+    document.edit_form.onsubmit = function(){
+        alert('handled');
+        validateForm();
+    }
+    
+    function submitIfValid() {
+        console.log('validateForm');
+        var e = document.getElementById("valid-status");
+        if (!e.options[e.selectedIndex]) {
+            alert("Select at least one order status.");
+            return false;
+        } else {
+            $('edit_form').submit();
+        }
+    }
+    //]]>
+</script>
